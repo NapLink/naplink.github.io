@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress';
 export default defineConfig({
     title: 'NapLink',
     description: '现代化的 NapCat WebSocket 客户端 SDK',
-    base: '/naplink/',
+    base: '/naplink.github.io/',
 
     themeConfig: {
         logo: '/logo.svg',
