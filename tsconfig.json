@@ -3,7 +3,9 @@
         "target": "ES2020",
         "module": "ESNext",
         "lib": [
-            "ES2020"
+            "ES2020",
+            "DOM",
+            "DOM.Iterable"
         ],
         "moduleResolution": "Bundler",
         "skipLibCheck": true,
@@ -17,7 +19,8 @@
     },
     "include": [
         "docs/.vitepress/**/*.ts",
-        "docs/**/*.md"
+        "docs/**/*.md",
+        "docs/env.d.ts"
     ],
     "exclude": [
         "node_modules"

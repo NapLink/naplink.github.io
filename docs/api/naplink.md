@@ -207,6 +207,15 @@ const msg = await client.getMessage('123456');
 await client.deleteMessage('123456');
 ```
 
+### setEssenceMessage(messageId) / deleteEssenceMessage(messageId)
+
+设置/移除精华消息。
+
+```typescript
+await client.setEssenceMessage('123456');
+await client.deleteEssenceMessage('123456');
+```
+
 ### getForwardMessage(id)
 
 获取合并转发消息内容。
@@ -218,6 +227,22 @@ await client.deleteMessage('123456');
 
 ```typescript
 const messages = await client.getForwardMessage('forward_id');
+```
+
+### getEssenceMessageList(groupId)
+
+获取群精华消息列表。
+
+```typescript
+const list = await client.getEssenceMessageList('123456');
+```
+
+### markMessageAsRead(messageId)
+
+标记消息已读。
+
+```typescript
+await client.markMessageAsRead('123');
 ```
 
 ## 群组管理API
@@ -280,6 +305,118 @@ console.log(member.nickname);
 console.log(member.role); // owner/admin/member
 ```
 
+### setGroupBan(groupId, userId, duration?)
+
+禁言成员，默认 30 分钟。
+
+```typescript
+await client.setGroupBan('123456', '654321', 10 * 60);
+```
+
+### unsetGroupBan(groupId, userId)
+
+取消禁言。
+
+```typescript
+await client.unsetGroupBan('123456', '654321');
+```
+
+### setGroupWholeBan(groupId, enable?)
+
+全员禁言开关。
+
+```typescript
+await client.setGroupWholeBan('123456', false);
+```
+
+### setGroupAdmin(groupId, userId, enable?)
+
+设置/取消管理员。
+
+```typescript
+await client.setGroupAdmin('123456', '654321', true);
+```
+
+### setGroupCard(groupId, userId, card)
+
+修改群名片。
+
+```typescript
+await client.setGroupCard('123456', '654321', 'NapLink Bot');
+```
+
+### setGroupName(groupId, name)
+
+修改群名称。
+
+```typescript
+await client.setGroupName('123456', '新群名');
+```
+
+### setGroupPortrait(groupId, file)
+
+设置群头像（支持路径/Buffer/流）。
+
+```typescript
+await client.setGroupPortrait('123456', '/tmp/avatar.jpg');
+```
+
+### setGroupSpecialTitle(groupId, userId, title, duration?)
+
+设置群头衔（默认 -1 永久）。
+
+```typescript
+await client.setGroupSpecialTitle('123456', '654321', '活跃成员', 3600);
+```
+
+### setGroupKick(groupId, userId, rejectAddRequest?)
+
+踢出群成员。
+
+```typescript
+await client.setGroupKick('123456', '654321', true);
+```
+
+### setGroupLeave(groupId, isDismiss?)
+
+退出群聊。
+
+```typescript
+await client.setGroupLeave('123456', false);
+```
+
+### setGroupAnonymousBan(groupId, anonymousFlag, duration?)
+
+匿名禁言，默认 30 分钟。
+
+```typescript
+await client.setGroupAnonymousBan('123456', 'flag', 30 * 60);
+```
+
+### getGroupAtAllRemain(groupId)
+
+查询群 @全体 剩余次数。
+
+```typescript
+const remain = await client.getGroupAtAllRemain('123456');
+```
+
+### getGroupSystemMsg()
+
+获取群系统消息（如入群申请列表）。
+
+```typescript
+const sys = await client.getGroupSystemMsg();
+```
+
+### getGroupHonorInfo(groupId, type)
+
+获取群荣誉信息。
+
+```typescript
+const honor = await client.getGroupHonorInfo('123456', 'talkative'); // all | talkative | performer | legend | strong_newbie | emotion
+```
+
 ## 好友管理API
 
 ### getFriendList()
@@ -290,6 +427,22 @@ console.log(member.role); // owner/admin/member
 
 ```typescript
 const friends = await client.getFriendList();
+```
+
+### sendLike(userId, times?)
+
+点赞（默认 1 次）。
+
+```typescript
+await client.sendLike('123456', 5);
+```
+
+### getStrangerInfo(userId, noCache?)
+
+获取陌生人资料。
+
+```typescript
+const stranger = await client.getStrangerInfo('123456', true);
 ```
 
 ## 文件操作API
@@ -336,6 +489,74 @@ const mp3 = await client.getRecord('file_id', 'mp3');
 const file = await client.getFile('file_id');
 ```
 
+### uploadGroupFile(groupId, file, name)
+
+上传文件到群，支持本地路径、`Buffer`/`Uint8Array` 或可读流。
+
+```typescript
+await client.uploadGroupFile('123456', '/tmp/demo.txt', 'demo.txt');
+```
+
+### uploadPrivateFile(userId, file, name)
+
+上传文件到私聊，支持本地路径、`Buffer`/`Uint8Array` 或可读流。
+
+```typescript
+await client.uploadPrivateFile('654321', '/tmp/demo.txt', 'demo.txt');
+```
+
+### uploadFileStream(file, options?)
+
+NapCat Stream API 分片上传（支持断点续传）。
+
+**参数（options 部分可选）**：
+- `streamId`：自定义流 ID，用于续传
+- `chunkSize`：分片大小，默认 256KB
+- `expectedSha256`：期望的 SHA256 校验
+- `fileRetention`：分片保留时间（毫秒）
+- `filename`：文件名
+- `reset`：是否先重置已有流
+- `verifyOnly`：仅校验分片不写入
+
+```typescript
+await client.uploadFileStream('/tmp/large.bin', {
+  streamId: 'custom-id',
+  chunkSize: 512 * 1024,
+  reset: true,
+});
+```
+
+### getUploadStreamStatus(streamId)
+
+查询流状态（便于续传缺失分片）。
+
+```typescript
+const status = await client.getUploadStreamStatus('custom-id');
+console.log(status.data?.missing_chunks);
+
+// 补发缺失分片示例（简化版，可根据需要替换为流式读取）
+const missing = status?.data?.missing_chunks as number[] | undefined;
+if (missing?.length) {
+  const filePath = '/tmp/large.bin';
+  const buf = await fs.promises.readFile(filePath);
+  const chunkSize = 256 * 1024;
+  for (const idx of missing) {
+    const start = idx * chunkSize;
+    const end = Math.min(start + chunkSize, buf.length);
+    const chunk = buf.slice(start, end);
+    await client.callApi('upload_file_stream', {
+      stream_id: 'custom-id',
+      chunk_data: chunk.toString('base64'),
+      chunk_index: idx,
+      total_chunks: Math.ceil(buf.length / chunkSize),
+      file_size: buf.length,
+      filename: 'large.bin',
+    });
+  }
+  await client.callApi('upload_file_stream', { stream_id: 'custom-id', is_complete: true });
+}
+```
+
 ## 自定义API
 
 ### callApi&lt;T&gt;(method, params?)
@@ -355,6 +576,26 @@ const file = await client.getFile('file_id');
 const result = await client.callApi('custom_action', {
   param1: 'value1',
 });
+```
+
+## 版本/资料
+
+### getVersionInfo()
+
+获取协议端版本信息。
+
+```typescript
+const version = await client.getVersionInfo();
+console.log(version);
+```
+
+## API 统一入口
+
+除了直接方法，你也可以使用 `client.api.*` 调用，便于未来扩展：
+
+```typescript
+await client.api.setGroupBan('123', '456', 600);
+await client.api.uploadGroupFile('123', '/tmp/demo.txt', 'demo.txt');
 ```
 
 ## 事件方法

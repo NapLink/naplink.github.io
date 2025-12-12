@@ -26,6 +26,10 @@ const client = new NapLink({
     token: 'your_token',              // 访问令牌（可选）
     timeout: 30000,                   // 连接超时（毫秒，默认30秒）
     pingInterval: 30000,              // 心跳间隔（毫秒，0表示禁用，默认30秒）
+    heartbeatAction: {                // 可选：自定义心跳 action，默认 get_status
+      action: 'get_status',
+      params: {},
+    },
   },
 
   // 重连配置（可选）
@@ -105,6 +109,18 @@ connection: {
 connection: {
   url: 'ws://localhost:3001',
   pingInterval: 0,  // 禁用心跳
+}
+```
+
+#### heartbeatAction
+- **类型**: `{ action: string; params?: Record<string, any> }`
+- **默认**: `{ action: 'get_status', params: {} }`
+- **说明**: 自定义心跳请求的 Action/参数。服务端若不支持 `get_status`，可改为自定义的 ping 方法。
+
+```typescript
+connection: {
+  url: 'ws://localhost:3001',
+  heartbeatAction: { action: 'get_status' }, // 或其他自定义 action
 }
 ```
 

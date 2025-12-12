@@ -12,6 +12,8 @@ NapLink实现了OneBot 11的所有核心API。
 - [群组管理](#群组管理)
 - [好友管理](#好友管理)
 - [文件操作](#文件操作)
+- [点赞/资料](#点赞资料)
+- [请求处理](#请求处理)
 
 ## 账号信息
 
@@ -130,6 +132,35 @@ NapLink实现了OneBot 11的所有核心API。
 **参数**:
 - `id` - 转发消息ID
 
+### set_essence_msg / delete_essence_msg
+
+设置/移除精华消息。
+
+**方法**:
+- `client.setEssenceMessage(messageId)`
+- `client.deleteEssenceMessage(messageId)`
+
+**参数**:
+- `message_id` - 消息ID
+
+### get_essence_msg_list
+
+获取群精华消息列表。
+
+**方法**: `client.getEssenceMessageList(groupId)`
+
+**参数**:
+- `group_id` - 群号
+
+### mark_msg_as_read
+
+标记消息已读。
+
+**方法**: `client.markMessageAsRead(messageId)`
+
+**参数**:
+- `message_id` - 消息ID
+
 ## 群组管理
 
 ### get_group_list
@@ -202,6 +233,61 @@ Array<{
 }
 ```
 
+### set_group_ban / set_group_whole_ban
+
+禁言成员或全员禁言。
+
+**方法**:
+- `client.setGroupBan(groupId, userId, duration?)` // 默认 30 分钟
+- `client.unsetGroupBan(groupId, userId)` // 等价 duration=0
+- `client.setGroupWholeBan(groupId, enable?)`
+
+### set_group_admin / set_group_card / set_group_name / set_group_special_title
+
+设置管理员、名片、群名、头衔。
+
+**方法**:
+- `client.setGroupAdmin(groupId, userId, enable?)`
+- `client.setGroupCard(groupId, userId, card)`
+- `client.setGroupName(groupId, name)`
+- `client.setGroupSpecialTitle(groupId, userId, title, duration?)` // 默认 -1 永久
+
+### set_group_portrait
+
+设置群头像。
+
+**方法**: `client.setGroupPortrait(groupId, file)`
+
+### set_group_kick / set_group_leave / set_group_anonymous_ban
+
+踢人、退群、匿名禁言。
+
+**方法**:
+- `client.setGroupKick(groupId, userId, rejectAddRequest?)`
+- `client.setGroupLeave(groupId, isDismiss?)`
+- `client.setGroupAnonymousBan(groupId, anonymousFlag, duration?)` // 默认 30 分钟
+
+### get_group_at_all_remain
+
+查询 @全体 剩余次数。
+
+**方法**: `client.getGroupAtAllRemain(groupId)`
+
+### get_group_system_msg
+
+获取群系统消息（入群申请等）。
+
+**方法**: `client.getGroupSystemMsg()`
+
+### get_group_honor_info
+
+获取群荣誉信息。
+
+**方法**: `client.getGroupHonorInfo(groupId, type)`
+
+**参数**:
+- `type` - `all | talkative | performer | legend | strong_newbie | emotion`
+
 ## 好友管理
 
 ### get_friend_list
@@ -218,6 +304,12 @@ Array<{
   remark: string;
 }>
 ```
+
+### send_like
+
+点赞。
+
+**方法**: `client.sendLike(userId, times?)` // 默认 1
 
 ## 文件操作
 
@@ -272,6 +364,34 @@ Array<{
 }
 ```
 
+### upload_group_file / upload_private_file
+
+上传文件到群/私聊，支持本地路径、`Buffer`/`Uint8Array` 或可读流。
+
+**方法**:
+- `client.uploadGroupFile(groupId, file, name)`
+- `client.uploadPrivateFile(userId, file, name)`
+
+**参数**:
+- `file` 支持本地路径
+
+### upload_file_stream / get_upload_stream_status
+
+NapCat Stream API 分片上传/状态查询（支持断点续传）。
+
+**方法**:
+- `client.uploadFileStream(file, options?)`
+- `client.getUploadStreamStatus(streamId)`
+
+**可选参数**:
+- `streamId` 自定义流 ID（续传用）
+- `chunkSize` 分片大小，默认 256KB
+- `expectedSha256` 期望 SHA256
+- `fileRetention` 分片保留时间（毫秒）
+- `filename` 文件名
+- `reset` 先重置流
+- `verifyOnly` 仅校验分片，不写入
+
 ## 消息段类型
 
 ### 文本
@@ -323,6 +443,18 @@ Array<{
 }
 ```
 
+### 文件
+
+```typescript
+{
+  type: 'file';
+  data: {
+    file: string;   // 文件路径或URL
+    name?: string;
+  };
+}
+```
+
 ### 语音
 
 ```typescript
@@ -350,6 +482,24 @@ Array<{
 }
 ```
 
+### XML消息
+
+```typescript
+{
+  type: 'xml';
+  data: { data: string };
+}
+```
+
+### Markdown
+
+```typescript
+{
+  type: 'markdown';
+  data: { content: string };
+}
+```
+
 ## 自定义API调用
 
 对于文档中未列出的API，可以使用：
@@ -360,6 +510,26 @@ const result = await client.callApi('api_name', {
   param2: 'value2',
 });
 ```
+
+## 点赞/资料
+
+### get_stranger_info
+
+**方法**: `client.getStrangerInfo(userId, noCache?)`
+
+### get_version_info
+
+**方法**: `client.getVersionInfo()`
+
+## 请求处理
+
+### set_friend_add_request / set_group_add_request
+
+处理好友/群请求或邀请。
+
+**方法**:
+- `client.handleFriendRequest(flag, approve?, remark?)`
+- `client.handleGroupRequest(flag, subType, approve?, reason?)`
 
 ## OneBot 11 标准
 

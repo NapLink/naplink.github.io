@@ -1,4 +1,6 @@
 import { defineConfig } from 'vitepress';
+import fs from 'fs';
+import path from 'path';
 
 export default defineConfig({
     title: 'NapLink',
@@ -6,6 +8,13 @@ export default defineConfig({
     base: '/',  // 组织主页使用根路径
 
     themeConfig: {
+        lastUpdated: {
+            text: '最后更新于',
+            formatOptions: {
+                dateStyle: 'short',
+                timeStyle: 'medium'
+            }
+        },
         logo: '/logo.svg',
 
         nav: [
@@ -67,5 +76,33 @@ export default defineConfig({
         search: {
             provider: 'local'
         }
+    },
+
+    transformPageData(pageData) {
+        // Content might not be available in pageData, read from file
+        let content = '';
+        // pageData.filePath seems to be relative in this version, so we force construction
+        const absolutePath = path.resolve(process.cwd(), 'docs', pageData.relativePath);
+
+        if (absolutePath) {
+            try {
+                content = fs.readFileSync(absolutePath, 'utf-8');
+            } catch (e) {
+
+            }
+        }
+
+        // CJK characters count
+        const cjkRegex = /[\u4e00-\u9fa5]/g;
+        const cjkCount = (content.match(cjkRegex) || []).length;
+        // Latin words count
+        const wordRegex = /[a-zA-Z0-9_\-]+/g;
+        const wordCount = (content.match(wordRegex) || []).length;
+
+        const totalCount = cjkCount + wordCount;
+        const readTime = Math.ceil(totalCount / 400); // Assume 400 chars/min reading speed
+
+        pageData.frontmatter.wordCount = totalCount;
+        pageData.frontmatter.readingTime = readTime;
     }
 });

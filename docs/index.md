@@ -5,9 +5,6 @@ hero:
   name: NapLink
   text: 现代化的 NapCat SDK
   tagline: 类型安全 · 易于使用 · 功能完整
-  image:
-    src: /logo.svg
-    alt: NapLink
   actions:
     - theme: brand
       text: 快速开始

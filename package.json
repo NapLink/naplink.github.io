@@ -5,10 +5,12 @@
     "type": "module",
     "scripts": {
         "dev": "vitepress dev docs",
+        "dev:host": "vitepress dev docs --host",
         "build": "vitepress build docs",
         "preview": "vitepress preview docs"
     },
     "devDependencies": {
+        "@types/node": "^25.0.1",
         "vitepress": "^1.0.0",
         "vue": "^3.4.0"
     },

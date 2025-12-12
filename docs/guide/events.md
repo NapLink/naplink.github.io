@@ -172,6 +172,40 @@ client.on('notice.group_recall', (data) => {
 });
 ```
 
+### notice.group_admin
+
+管理员变更。
+
+```typescript
+client.on('notice.group_admin', (data) => {
+  console.log(`群 ${data.group_id} 管理员 ${data.sub_type === 'set' ? '被设置' : '被取消'}: ${data.user_id}`);
+});
+```
+
+### notice.group_ban
+
+群禁言事件（全员或单人）。
+
+```typescript
+client.on('notice.group_ban', (data) => {
+  if (data.sub_type === 'ban') {
+    console.log(`群 ${data.group_id} 成员 ${data.user_id} 被禁言 ${data.duration}s`);
+  } else if (data.sub_type === 'lift_ban') {
+    console.log(`群 ${data.group_id} 成员 ${data.user_id} 解除禁言`);
+  }
+});
+```
+
+### notice.group_upload
+
+群文件上传。
+
+```typescript
+client.on('notice.group_upload', (data) => {
+  console.log(`群 ${data.group_id} 上传文件: ${data.file.name} (${data.file.size} bytes)`);
+});
+```
+
 ### notice.friend_add
 
 好友添加。
@@ -209,8 +243,8 @@ client.on('request.friend', async (data) => {
   console.log(`${data.user_id} 请求添加好友`);
   console.log('验证消息:', data.comment);
   
-  // 自动通过（需要实现相应 API）
-  // await client.setFriendAddRequest(data.flag, true);
+  // 自动通过
+  await client.handleFriendRequest(data.flag, true, '很高兴认识你');
 });
 ```
 
@@ -225,6 +259,31 @@ client.on('request.group', async (data) => {
   } else if (data.sub_type === 'invite') {
     console.log(`${data.user_id} 邀请加入群 ${data.group_id}`);
   }
+
+  // 接受请求/邀请
+  await client.handleGroupRequest(data.flag, data.sub_type, true, '欢迎加入');
+});
+```
+
+## 精华/撤回事件
+
+### notice.essence
+
+精华消息变更。
+
+```typescript
+client.on('notice.essence', (data) => {
+  console.log(`精华消息 ${data.message_id} 操作: ${data.sub_type}`);
+});
+```
+
+### notice.group_recall / notice.friend_recall
+
+消息撤回。
+
+```typescript
+client.on('notice.group_recall', (data) => {
+  console.log(`群 ${data.group_id} 撤回消息 ${data.message_id}`);
 });
 ```
 

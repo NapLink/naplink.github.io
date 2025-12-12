@@ -79,6 +79,44 @@ const groups = await client.getGroupList();
 console.log(`加入了 ${groups.length} 个群`);
 ```
 
+## 常用管理/请求/信息示例
+
+### 群管理
+
+```typescript
+// 禁言 10 分钟
+await client.setGroupBan('123456', '654321', 10 * 60);
+// 设置管理员
+await client.setGroupAdmin('123456', '654321', true);
+// 设置群名片/头衔
+await client.setGroupCard('123456', '654321', 'NapLink Bot');
+await client.setGroupSpecialTitle('123456', '654321', '活跃成员', 3600);
+// 全员禁言开关
+await client.setGroupWholeBan('123456', false);
+```
+
+### 请求处理
+
+```typescript
+// 好友请求
+client.on('request.friend', async (data) => {
+  await client.handleFriendRequest(data.flag, true, '很高兴认识你');
+});
+
+// 入群申请/邀请
+client.on('request.group', async (data) => {
+  await client.handleGroupRequest(data.flag, data.sub_type, true, '欢迎加入');
+});
+```
+
+### 信息查询
+
+```typescript
+const version = await client.getVersionInfo();
+const stranger = await client.getStrangerInfo('123456789', true);
+console.log(version, stranger);
+```
+
 ## 更复杂的示例
 
 一个带命令处理的机器人：
