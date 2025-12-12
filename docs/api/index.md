@@ -45,14 +45,14 @@ class NapLink extends EventEmitter {
   constructor(config: PartialNapLinkConfig);
   
   // 连接管理
-  connect(): Promise<void>;
+  connect(): Promise&lt;void&gt;;
   disconnect(): void;
   getState(): ConnectionState;
   isConnected(): boolean;
   
   // OneBot API
-  getLoginInfo(): Promise<LoginInfo>;
-  sendGroupMessage(groupId: string, message: any): Promise<MessageResult>;
+  getLoginInfo(): Promise&lt;LoginInfo&gt;;
+  sendGroupMessage(groupId: string, message: any): Promise&lt;MessageResult&gt;;
   // ...更多API
 }
 ```

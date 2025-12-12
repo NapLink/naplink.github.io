@@ -66,7 +66,7 @@ import { NapLink } from 'naplink';
 export interface Command {
   name: string;
   description: string;
-  execute: (client: NapLink, groupId: string, args: string[]) => Promise<void>;
+  execute: (client: NapLink, groupId: string, args: string[]) => Promise&lt;void&gt;;
 }
 
 export const commands: Command[] = [

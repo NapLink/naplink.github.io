@@ -29,7 +29,7 @@ const client = new NapLink({
 
 连接到NapCat服务器。
 
-**返回**: `Promise<void>`
+**返回**: `Promise&lt;void&gt;`
 
 **抛出**: [`ConnectionError`](/api/errors#connectionerror)
 
@@ -76,7 +76,7 @@ if (client.isConnected()) {
 
 获取登录号信息。
 
-**返回**: `Promise<LoginInfo>`
+**返回**: `Promise&lt;LoginInfo&gt;`
 
 ```typescript
 const info = await client.getLoginInfo();
@@ -88,7 +88,7 @@ console.log(info.nickname);
 
 获取运行状态。
 
-**返回**: `Promise<Status>`
+**返回**: `Promise&lt;Status&gt;`
 
 ```typescript
 const status = await client.getStatus();
@@ -112,7 +112,7 @@ console.log(status.online);
 }
 ```
 
-**返回**: `Promise<MessageResult>`
+**返回**: `Promise&lt;MessageResult&gt;`
 
 ```typescript
 await client.sendMessage({
@@ -130,7 +130,7 @@ await client.sendMessage({
 - `userId` - `number | string` 用户QQ号
 - `message` - `any` 消息内容
 
-**返回**: `Promise<MessageResult>`
+**返回**: `Promise&lt;MessageResult&gt;`
 
 ```typescript
 await client.sendPrivateMessage('12345', '你好');
@@ -150,7 +150,7 @@ await client.sendPrivateMessage('12345', [
 - `groupId` - `number | string` 群号
 - `message` - `any` 消息内容
 
-**返回**: `Promise<MessageResult>`
+**返回**: `Promise&lt;MessageResult&gt;`
 
 ```typescript
 await client.sendGroupMessage('123456', '你好');
@@ -164,7 +164,7 @@ await client.sendGroupMessage('123456', '你好');
 - `groupId` - `number | string` 群号
 - `messages` - `any[]` 消息列表
 
-**返回**: `Promise<MessageResult>`
+**返回**: `Promise&lt;MessageResult&gt;`
 
 ```typescript
 await client.sendGroupForwardMessage('123456', [
@@ -188,7 +188,7 @@ await client.sendGroupForwardMessage('123456', [
 **参数**：
 - `messageId` - `number | string` 消息ID
 
-**返回**: `Promise<Message>`
+**返回**: `Promise&lt;Message&gt;`
 
 ```typescript
 const msg = await client.getMessage('123456');
@@ -201,7 +201,7 @@ const msg = await client.getMessage('123456');
 **参数**：
 - `messageId` - `number | string` 消息ID
 
-**返回**: `Promise<any>`
+**返回**: `Promise&lt;any&gt;`
 
 ```typescript
 await client.deleteMessage('123456');
@@ -214,7 +214,7 @@ await client.deleteMessage('123456');
 **参数**：
 - `id` - `string` 转发消息ID
 
-**返回**: `Promise<any>`
+**返回**: `Promise&lt;any&gt;`
 
 ```typescript
 const messages = await client.getForwardMessage('forward_id');
@@ -226,7 +226,7 @@ const messages = await client.getForwardMessage('forward_id');
 
 获取群列表。
 
-**返回**: `Promise<Group[]>`
+**返回**: `Promise&lt;Group[]&gt;`
 
 ```typescript
 const groups = await client.getGroupList();
@@ -243,7 +243,7 @@ for (const group of groups) {
 - `groupId` - `number | string` 群号
 - `noCache` - `boolean` 是否不使用缓存（默认false）
 
-**返回**: `Promise<GroupInfo>`
+**返回**: `Promise&lt;GroupInfo&gt;`
 
 ```typescript
 const info = await client.getGroupInfo('123456');
@@ -257,7 +257,7 @@ const freshInfo = await client.getGroupInfo('123456', true);
 **参数**：
 - `groupId` - `number | string` 群号
 
-**返回**: `Promise<GroupMember[]>`
+**返回**: `Promise&lt;GroupMember[]&gt;`
 
 ```typescript
 const members = await client.getGroupMemberList('123456');
@@ -272,7 +272,7 @@ const members = await client.getGroupMemberList('123456');
 - `userId` - `number | string` 用户QQ号
 - `noCache` - `boolean` 是否不使用缓存（默认false）
 
-**返回**: `Promise<GroupMember>`
+**返回**: `Promise&lt;GroupMember&gt;`
 
 ```typescript
 const member = await client.getGroupMemberInfo('123456', '12345');
@@ -286,7 +286,7 @@ console.log(member.role); // owner/admin/member
 
 获取好友列表。
 
-**返回**: `Promise<Friend[]>`
+**返回**: `Promise&lt;Friend[]&gt;`
 
 ```typescript
 const friends = await client.getFriendList();
@@ -301,7 +301,7 @@ const friends = await client.getFriendList();
 **参数**：
 - `file` - `string` 文件ID
 
-**返回**: `Promise<ImageInfo>`
+**返回**: `Promise&lt;ImageInfo&gt;`
 
 ```typescript
 const image = await client.getImage('file_id');
@@ -316,7 +316,7 @@ console.log(image.url);
 - `file` - `string` 文件ID
 - `outFormat` - `string` 输出格式（可选）
 
-**返回**: `Promise<RecordInfo>`
+**返回**: `Promise&lt;RecordInfo&gt;`
 
 ```typescript
 const record = await client.getRecord('file_id');
@@ -330,7 +330,7 @@ const mp3 = await client.getRecord('file_id', 'mp3');
 **参数**：
 - `file` - `string` 文件ID
 
-**返回**: `Promise<FileInfo>`
+**返回**: `Promise&lt;FileInfo&gt;`
 
 ```typescript
 const file = await client.getFile('file_id');
@@ -338,7 +338,7 @@ const file = await client.getFile('file_id');
 
 ## 自定义API
 
-### callApi<T>(method, params?)
+### callApi&lt;T&gt;(method, params?)
 
 调用任意API。
 
@@ -349,7 +349,7 @@ const file = await client.getFile('file_id');
 - `method` - `string` API方法名
 - `params` - `any` 参数（可选）
 
-**返回**: `Promise<T>`
+**返回**: `Promise&lt;T&gt;`
 
 ```typescript
 const result = await client.callApi('custom_action', {

@@ -125,7 +125,7 @@ client.on('connect', handler);
 async call<T extends keyof WSSendParam>(
   method: T,
   params: WSSendParam[T]
-): Promise<WSSendReturn[T]>
+): Promise&lt;WSSendReturn[T]&gt;
 ```
 
 ## 核心流程

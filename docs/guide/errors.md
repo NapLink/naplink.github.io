@@ -171,10 +171,10 @@ try {
 
 ```typescript
 async function retryOperation<T>(
-  operation: () => Promise<T>,
+  operation: () => Promise&lt;T&gt;,
   maxRetries = 3,
   delay = 1000
-): Promise<T> {
+): Promise&lt;T&gt; {
   for(let i = 0; i < maxRetries; i++) {
     try {
       return await operation();
