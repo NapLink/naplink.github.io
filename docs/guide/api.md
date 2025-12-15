@@ -126,6 +126,16 @@ await client.deleteMessage('message_id');
 await client.markMessageAsRead('message_id');
 ```
 
+### markGroupMsgAsRead() / markPrivateMsgAsRead() / markAllMsgAsRead()
+
+标记群/私聊/全量消息已读（NapCat 扩展）。
+
+```typescript
+await client.markGroupMsgAsRead('group_id');
+await client.markPrivateMsgAsRead('user_id');
+await client.markAllMsgAsRead();
+```
+
 ### setEssenceMessage() / deleteEssenceMessage()
 
 设置/移除精华消息。
@@ -150,6 +160,26 @@ const list = await client.getEssenceMessageList('group_id');
 ```typescript
 const messages = await client.getForwardMessage('forward_id');
 console.log(messages);
+```
+
+### getGroupMsgHistory() / getFriendMsgHistory()
+
+获取群/好友消息历史（NapCat 扩展）。
+
+```typescript
+const groupHistory = await client.getGroupMsgHistory({
+  group_id: 'group_id',
+  message_seq: 0,
+  count: 20,
+  reverse_order: true,
+});
+
+const friendHistory = await client.getFriendMsgHistory({
+  user_id: 'user_id',
+  message_seq: 0,
+  count: 20,
+  reverse_order: true,
+});
 ```
 
 ## 群组管理
@@ -293,6 +323,15 @@ await client.sendLike('user_id', 5);
 const stranger = await client.getStrangerInfo('user_id', true);
 ```
 
+## 戳一戳（NapCat 扩展）
+
+```typescript
+await client.sendGroupPoke('group_id', 'user_id');
+await client.sendFriendPoke('user_id');
+await client.sendPoke('target_id', 'group_id'); // 群内戳一戳
+await client.sendPoke('user_id');               // 私聊戳一戳
+```
+
 ## 文件操作
 
 ### getImage()
@@ -380,6 +419,42 @@ if (missing && missing.length) {
 }
 ```
 
+### downloadFileStream*() / cleanStreamTempFile()
+
+NapCat Stream API 流式下载（分片通过 WebSocket 返回，适合“直链不可达/需要代理/WAF 限制”的场景）。
+
+```typescript
+// 下载到临时文件（推荐：SDK 自动聚合并写入）
+const { path, info } = await client.downloadFileStreamToFile('file_id', { filename: 'demo.bin' });
+console.log(path, info?.file_name, info?.file_size);
+
+// 处理图片/语音（语音可指定输出格式）
+await client.downloadFileImageStreamToFile('file_id', { filename: 'img.jpg' });
+await client.downloadFileRecordStreamToFile('file_id', 'mp3', { filename: 'audio.mp3' });
+
+// 清理 NapCat 侧 stream 临时文件（按需）
+await client.cleanStreamTempFile();
+```
+
+## 系统/能力探测（NapCat 扩展）
+
+用于排障、能力探测和运行状态确认：
+
+```typescript
+await client.getOnlineClients(true);
+await client.canSendImage();
+await client.canSendRecord();
+
+await client.getCookies('qun.qq.com');
+await client.getCsrfToken();
+await client.getCredentials('qun.qq.com');
+
+await client.setInputStatus('user_id', 1);
+await client.ocrImage('file:///tmp/a.png');
+await client.translateEn2zh(['hello', 'world']);
+await client.checkUrlSafely('https://example.com');
+```
+
 ## 自定义 API
 
 ### callApi()
@@ -391,6 +466,17 @@ const result = await client.callApi('custom_action', {
   param1: 'value1',
   param2: 'value2',
 });
+```
+
+### api.raw[...]（全量 action 直通）
+
+当你需要调用“服务端有实现但 SDK 还没写 wrapper”的 action 时，可以使用 `raw` 直通：
+
+```typescript
+await client.api.raw['get_group_shut_list']({ group_id: 123 });
+
+// 带 '.' 前缀的 action 用 bracket 写法
+await client.api.raw['.ocr_image']({ image: 'file:///tmp/a.png' });
 ```
 
 ## 版本/资料

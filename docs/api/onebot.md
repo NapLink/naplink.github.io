@@ -12,6 +12,9 @@ NapLink实现了OneBot 11的所有核心API。
 - [群组管理](#群组管理)
 - [好友管理](#好友管理)
 - [文件操作](#文件操作)
+- [系统/能力探测（NapCat 扩展）](#系统能力探测napcat-扩展)
+- [NapCat 扩展 API](#napcat-扩展-api)
+- [全量 action 直通（raw）](#全量-action-直通raw)
 - [点赞/资料](#点赞资料)
 - [请求处理](#请求处理)
 
@@ -160,6 +163,51 @@ NapLink实现了OneBot 11的所有核心API。
 
 **参数**:
 - `message_id` - 消息ID
+
+### mark_group_msg_as_read / mark_private_msg_as_read / _mark_all_as_read
+
+标记群/私聊/全量消息已读（NapCat 扩展）。
+
+**方法**:
+- `client.markGroupMsgAsRead(groupId)`
+- `client.markPrivateMsgAsRead(userId)`
+- `client.markAllMsgAsRead()`
+
+### get_group_msg_history / get_friend_msg_history
+
+获取群/好友消息历史（NapCat 扩展）。
+
+**方法**:
+- `client.getGroupMsgHistory(params)`
+- `client.getFriendMsgHistory(params)`
+
+**参数（示例）**:
+```typescript
+// 群消息历史
+{
+  group_id: number | string;
+  message_seq: number | string;
+  count: number;
+  reverse_order?: boolean;
+}
+
+// 好友消息历史
+{
+  user_id: number | string;
+  message_seq: number | string;
+  count: number;
+  reverse_order?: boolean;
+}
+```
+
+### group_poke / friend_poke / send_poke
+
+戳一戳（NapCat 扩展）。
+
+**方法**:
+- `client.sendGroupPoke(groupId, userId)`
+- `client.sendFriendPoke(userId)`
+- `client.sendPoke(targetId, groupId?)`
 
 ## 群组管理
 
@@ -391,6 +439,58 @@ NapCat Stream API 分片上传/状态查询（支持断点续传）。
 - `filename` 文件名
 - `reset` 先重置流
 - `verifyOnly` 仅校验分片，不写入
+
+### download_file_stream / download_file_image_stream / download_file_record_stream
+
+NapCat Stream API 流式下载（分片通过 WebSocket 返回）。
+
+**方法**:
+- `client.downloadFileStream(fileId, options?)`
+- `client.downloadFileStreamToFile(fileId, options?)`
+- `client.downloadFileImageStream(fileId, options?)`
+- `client.downloadFileImageStreamToFile(fileId, options?)`
+- `client.downloadFileRecordStream(fileId, outFormat?, options?)`
+- `client.downloadFileRecordStreamToFile(fileId, outFormat?, options?)`
+
+### clean_stream_temp_file
+
+清理 NapCat 侧 stream 临时文件（按需）。
+
+**方法**: `client.cleanStreamTempFile()`
+
+## 系统/能力探测（NapCat 扩展）
+
+用于排障、能力探测和运行状态确认：
+
+**方法**:
+- `client.getOnlineClients(noCache?)`
+- `client.canSendImage()` / `client.canSendRecord()`
+- `client.getCookies(domain)` / `client.getCsrfToken()` / `client.getCredentials(domain)`
+- `client.setInputStatus(userId, eventType)`
+- `client.ocrImage(image)` / `client.translateEn2zh(words)` / `client.checkUrlSafely(url)`
+- `client.handleQuickOperation(context, operation)`
+
+## NapCat 扩展 API
+
+NapCat 在 OneBot 11 之外提供了大量扩展 action，NapLink 已封装常用部分（其余可用 `raw` 直通调用）。
+
+常见示例：
+
+- RKey：`getRkey()` / `getRkeyServer()` / `getRkeyEx()`
+- 好友：`setFriendRemark()` / `deleteFriend()` / `getUnidirectionalFriendList()`
+- 群：`setGroupRemark()` / `getGroupInfoEx()` / `getGroupDetailInfo()` / `getGroupIgnoredNotifies()` / `getGroupShutList()`
+- 表情：`setMsgEmojiLike()` / `fetchEmojiLike()` / `fetchCustomFace()`
+
+## 全量 action 直通（raw）
+
+当你需要调用“服务端有实现但 SDK 还没写 wrapper”的 action 时，可以使用 `raw`：
+
+```typescript
+await client.api.raw['get_group_shut_list']({ group_id: 123 });
+
+// 带 '.' 前缀的 action 用 bracket 写法
+await client.api.raw['.ocr_image']({ image: 'file:///tmp/a.png' });
+```
 
 ## 消息段类型
 

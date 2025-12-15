@@ -245,6 +245,61 @@ const list = await client.getEssenceMessageList('123456');
 await client.markMessageAsRead('123');
 ```
 
+### markGroupMsgAsRead(groupId)
+
+标记群消息已读（NapCat 扩展）。
+
+```typescript
+await client.markGroupMsgAsRead('123456');
+```
+
+### markPrivateMsgAsRead(userId)
+
+标记私聊消息已读（NapCat 扩展）。
+
+```typescript
+await client.markPrivateMsgAsRead('654321');
+```
+
+### markAllMsgAsRead()
+
+标记全部消息已读（NapCat 扩展）。
+
+```typescript
+await client.markAllMsgAsRead();
+```
+
+### getGroupMsgHistory(params) / getFriendMsgHistory(params)
+
+获取群/好友消息历史（NapCat 扩展）。
+
+```typescript
+const groupHistory = await client.getGroupMsgHistory({
+  group_id: '123456',
+  message_seq: 0,
+  count: 20,
+  reverse_order: true,
+});
+
+const friendHistory = await client.getFriendMsgHistory({
+  user_id: '654321',
+  message_seq: 0,
+  count: 20,
+  reverse_order: true,
+});
+```
+
+### sendGroupPoke(groupId, userId) / sendFriendPoke(userId) / sendPoke(...)
+
+戳一戳（NapCat 扩展）。
+
+```typescript
+await client.sendGroupPoke('123456', '654321');
+await client.sendFriendPoke('654321');
+await client.sendPoke('654321');              // 私聊
+await client.sendPoke('654321', '123456');    // 群内
+```
+
 ## 群组管理API
 
 ### getGroupList()
@@ -489,6 +544,16 @@ const mp3 = await client.getRecord('file_id', 'mp3');
 const file = await client.getFile('file_id');
 ```
 
+### hydrateMessage(message)
+
+补充消息段中的媒体直链（自动通过 `get_file/get_image/get_record` 获取真实下载链接）。
+
+> `v0.0.2` 起会自动兼容 `file_id -> file` 的场景。
+
+```typescript
+await client.hydrateMessage(messageSegments);
+```
+
 ### uploadGroupFile(groupId, file, name)
 
 上传文件到群，支持本地路径、`Buffer`/`Uint8Array` 或可读流。
@@ -555,6 +620,94 @@ if (missing?.length) {
   }
   await client.callApi('upload_file_stream', { stream_id: 'custom-id', is_complete: true });
 }
+```
+
+## 流式下载（stream-action）
+
+NapCat Stream API 流式下载（分片通过 WebSocket 返回）。
+
+### downloadFileStream(fileId, options?)
+
+流式下载文件（原始分片包，返回 AsyncIterable）。
+
+```typescript
+const { packets, result } = client.downloadFileStream('file_id');
+for await (const pkt of packets) {
+  // pkt.data_type: file_info / file_chunk / file_complete
+}
+await result;
+```
+
+### downloadFileStreamToFile(fileId, options?)
+
+流式下载并写入本地临时文件（推荐）。
+
+```typescript
+const { path, info } = await client.downloadFileStreamToFile('file_id', { filename: 'demo.bin' });
+console.log(path, info?.file_name, info?.file_size);
+```
+
+### downloadFileImageStream* / downloadFileRecordStream*
+
+图片/语音流式下载（语音可指定输出格式）。
+
+```typescript
+await client.downloadFileImageStreamToFile('file_id', { filename: 'img.jpg' });
+await client.downloadFileRecordStreamToFile('file_id', 'mp3', { filename: 'audio.mp3' });
+```
+
+### cleanStreamTempFile()
+
+清理 NapCat 侧 stream 临时文件（按需）。
+
+```typescript
+await client.cleanStreamTempFile();
+```
+
+## 系统/能力探测（NapCat 扩展）
+
+```typescript
+await client.getOnlineClients(true);
+await client.canSendImage();
+await client.canSendRecord();
+
+await client.getCookies('qun.qq.com');
+await client.getCsrfToken();
+await client.getCredentials('qun.qq.com');
+
+await client.setInputStatus('user_id', 1);
+await client.ocrImage('file:///tmp/a.png');
+await client.translateEn2zh(['hello', 'world']);
+await client.checkUrlSafely('https://example.com');
+```
+
+## NapCat 扩展能力（部分示例）
+
+```typescript
+await client.getRkey();
+await client.getRkeyServer();
+await client.getRkeyEx();
+
+await client.setFriendRemark('user_id', 'remark');
+await client.deleteFriend('user_id');
+await client.getUnidirectionalFriendList();
+
+await client.setGroupRemark('group_id', 'remark');
+await client.getGroupInfoEx('group_id');
+await client.getGroupDetailInfo('group_id');
+await client.getGroupIgnoredNotifies();
+await client.getGroupShutList('group_id');
+
+await client.fetchCustomFace({ count: 20 });
+```
+
+## 全量 action 直通：api.raw
+
+当你需要调用“服务端有实现但 SDK 还没写 wrapper”的 action 时，可以使用 `raw`：
+
+```typescript
+await client.api.raw['get_group_shut_list']({ group_id: 123 });
+await client.api.raw['.ocr_image']({ image: 'file:///tmp/a.png' });
 ```
 
 ## 自定义API

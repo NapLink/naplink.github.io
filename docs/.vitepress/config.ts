@@ -47,6 +47,7 @@ export default defineConfig({
                     items: [
                         { text: '架构设计', link: '/guide/architecture' },
                         { text: '与其他 SDK 对比', link: '/guide/comparison' },
+                        { text: '更新日志', link: '/guide/releases' },
                     ]
                 }
             ],
