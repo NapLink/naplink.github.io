@@ -42,6 +42,10 @@ features:
 ## 快速开始
 
 ::: code-group
+```bash [bun]
+bun add naplink
+```
+
 ```bash [npm]
 npm install naplink
 ```
