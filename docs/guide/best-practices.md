@@ -326,16 +326,16 @@ describe('Commands', () => {
 ### Docker
 
 ```dockerfile
-FROM node:20-alpine
+FROM oven/bun:1.4-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci --only=production
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile --production
 
 COPY dist ./dist
 
-CMD ["node", "dist/index.js"]
+CMD ["bun", "dist/index.js"]
 ```
 
 ### PM2
