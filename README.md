@@ -6,16 +6,16 @@
 
 ```bash
 # 安装依赖
-npm install
+bun install
 
 # 启动开发服务器
-npm run dev
+bun run dev
 
 # 构建
-npm run build
+bun run build
 
 # 预览构建结果
-npm run preview
+bun run preview
 ```
 
 ## 目录结构
